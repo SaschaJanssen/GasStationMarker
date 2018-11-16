@@ -19,11 +19,11 @@ class GasStationFinder {
 
     private fun parametersOf(it: LatLng): List<Pair<String, String>> {
         return listOf(
-            "lat" to "${it.lat}",
-            "lng" to "${it.lng}",
-            "rad" to "1",
-            "sort" to "dist",
-            "type" to "all",
+                "lat" to "${it.lat}",
+                "lng" to "${it.lng}",
+                "rad" to "1",
+                "sort" to "dist",
+                "type" to "all",
             "apikey" to "CHANGEME"
         )
     }

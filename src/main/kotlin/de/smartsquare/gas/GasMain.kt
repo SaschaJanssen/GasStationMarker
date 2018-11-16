@@ -3,6 +3,7 @@ package de.smartsquare.gas
 import com.google.maps.DirectionsApi
 import com.google.maps.GeoApiContext
 import com.google.maps.android.AndroidSphericalCalculator
+import de.smartsquare.gas.gasstation.GasStationFinder
 import de.smartsquare.gas.route.RouteDivider
 import io.ktor.application.call
 import io.ktor.application.install
@@ -25,12 +26,11 @@ import java.text.DateFormat
 fun main(args: Array<String>) {
 
     val gasStationMarker = RouteDivider(AndroidSphericalCalculator())
+    val gasStationFinder = GasStationFinder()
 
     val context = GeoApiContext.Builder()
             .apiKey("AIzaSyADz7Tc0xusnydQiQzNWsx5kc-pxTpKWBE")
             .build()
-    val origin = "Otto-Brenner-Str, 247, 33604 Bielefeld, Germany"
-    val destination = "Lipper Hellweg, 84, 33605 Bielefeld, Germany"
 
     val server = embeddedServer(Netty, port = 8080) {
 
@@ -64,7 +64,8 @@ fun main(args: Array<String>) {
                 val directions = DirectionsApi.getDirections(context, origin, destination).await()
 
                 val markers = gasStationMarker.getMarkers(directions, 200.0)
-                call.respond(markers)
+                val cheapestGasStation = gasStationFinder.findCheapestGasStation(markers)
+                call.respond(cheapestGasStation.blockingGet())
             }
         }
 

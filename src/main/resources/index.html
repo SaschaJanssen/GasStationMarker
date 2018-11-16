@@ -75,7 +75,7 @@
 
                 for (coordinate in data) {
                     var marker = new google.maps.Marker({
-                        position: new google.maps.LatLng(data[coordinate].lat, data[coordinate].lng),
+                        position: new google.maps.LatLng(data.lat, data.lng),
                         map: map
                     });
                 }
@@ -94,8 +94,6 @@
             destination: document.getElementById('end').value,
             travelMode: 'DRIVING'
         }, function (response, status) {
-
-            console.log(response)
 
             if (status === 'OK') {
                 directionsDisplay.setDirections(response);
