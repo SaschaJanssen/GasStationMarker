@@ -13,7 +13,8 @@ class RouteDivider(private val distanceCalculcator: DistanceCalculator) {
         val majorMarkers = getMajorMarkers(directions)
         val intermideateMarkers = getIntermidiateMarkers(majorMarkers, distance)
 
-        return majorMarkers + intermideateMarkers
+        return (majorMarkers + intermideateMarkers)
+
     }
 
     private fun getMajorMarkers(directions: DirectionsResult): List<LatLng> = directions.routes
