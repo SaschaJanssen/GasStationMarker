@@ -1,29 +1,44 @@
 package de.smartsquare.gas.gasstation
 
+import com.github.kittinunf.fuel.core.FuelError
+import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.rx.rx_responseObject
 import com.github.kittinunf.result.Result
 import com.google.maps.model.LatLng
-import io.reactivex.Maybe
+import io.reactivex.Flowable
 
 class GasStationFinder {
 
-    fun findAllStationsInRadius(start: LatLng, radius: Double): Maybe<List<GasStations.GasStation>> =
-        "https://creativecommons.tankerkoenig.de/json/list.php"
-            .httpGet(parametersOf(start, radius))
-            .rx_responseObject(GasStations.Deserializer())
-            .toMaybe()
-            .filter { it -> it.second is Result.Success }
-            .map { it -> it.second.component1()?.stations }
+    fun findCheapestGasStation(markers: List<LatLng>, radius: Double): Flowable<GasStations.GasStation> {
+        val requests: List<Flowable<Pair<Response, Result<GasStations, FuelError>>>> = markers
+            .map { "https://creativecommons.tankerkoenig.de/json/list.php" to parametersOf(it, radius) }
+            .map { it -> it.first.httpGet(it.second) }
+            .map { it -> it.rx_responseObject(GasStations.Deserializer()).toFlowable() }
 
-    private fun parametersOf(start: LatLng, radius: Double): List<Pair<String, String>> {
+        val chunks = Flowable.merge(requests)
+            .buffer(10)
+            .flatMapIterable { it -> it }
+
+        chunks.filter {it -> it.second is Result.Failure }
+            .map { it -> it.first.responseMessage}
+            .subscribe { it -> println(it) }
+
+        return chunks.filter { it -> it.second is Result.Success }
+            .map { it -> it.second.component1()?.stations }
+            .flatMapIterable { it -> it }
+            .sorted(compareBy(GasStations.GasStation::diesel))
+            .takeLast(1)
+    }
+
+    private fun parametersOf(marker: LatLng, radius: Double): List<Pair<String, String>> {
         return listOf(
-            "lat" to "${start.lat}",
-            "lng" to "${start.lng}",
-            "rad" to "${radius}",
+            "lat" to "${marker.lat}",
+            "lng" to "${marker.lng}",
+            "rad" to "$radius",
             "sort" to "dist",
             "type" to "all",
-            "apikey" to "CHANGEME"
+            "apikey" to "b8bba741-6fd7-1d31-7229-d38691f67194"
         )
     }
 

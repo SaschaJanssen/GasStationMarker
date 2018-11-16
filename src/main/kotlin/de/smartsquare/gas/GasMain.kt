@@ -64,8 +64,8 @@ fun main(args: Array<String>) {
                 val directions = DirectionsApi.getDirections(context, origin, destination).await()
 
                 val markers = gasStationMarker.getMarkers(directions, 200.0)
-                val cheapestGasStation = gasStationFinder.findCheapestGasStation(markers)
-                call.respond(cheapestGasStation.blockingGet())
+               // val cheapestGasStation = gasStationFinder.findAllStationsInRadius(markers)
+              //      call.respond(cheapestGasStation.blockingGet())
             }
         }
 
