@@ -1,36 +1,38 @@
 package de.smartsquare.gas.gasstation
 
 import com.github.kittinunf.fuel.core.FuelError
+import com.github.kittinunf.fuel.core.Request
 import com.github.kittinunf.fuel.core.Response
 import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.fuel.rx.rx_responseObject
 import com.github.kittinunf.result.Result
 import com.google.maps.model.LatLng
 import io.reactivex.Flowable
+import java.util.concurrent.TimeUnit
 
 class GasStationFinder {
 
     fun findCheapestGasStation(markers: List<LatLng>, radius: Double): Events {
-        val requests: List<Flowable<Pair<Response, Result<GasStations, FuelError>>>> = markers
-            .map { "https://creativecommons.tankerkoenig.de/json/list.php" to parametersOf(it, radius) }
-            .map { it -> it.first.httpGet(it.second) }
-            .map { it -> it.rx_responseObject(GasStations.Deserializer()).toFlowable() }
-
-        val chunks = Flowable.merge(requests)
-            .buffer(10)
-            .flatMapIterable { it -> it }
+        val chunks: Flowable<Triple<Request, Response, Result<GasStations, FuelError>>> =
+            Flowable.fromArray(markers)
+                .flatMapIterable { it -> it }
+                .delay((500..5000).random().toLong(), TimeUnit.MILLISECONDS)
+                .map { "https://creativecommons.tankerkoenig.de/json/list.php" to parametersOf(it, radius) }
+                .map { it -> it.first.httpGet(it.second) }
+                .map { it -> it.responseObject(GasStations.Deserializer()) }
+                .buffer(10)
+                .flatMapIterable { it -> it }
 
         return Events(
             success = chunks
-                .filter { it -> it.second is Result.Success }
-                .map { it -> it.second.component1() }
+                .filter { it -> it.third is Result.Success }
+                .map { it -> it.third.component1() }
                 .filter { it -> it.ok }
                 .map { it -> it.stations }
                 .flatMapIterable { it -> it }
                 .sorted(compareBy(GasStations.GasStation::diesel))
                 .takeLast(1),
-            error = chunks.filter { it -> it.second is Result.Failure }
-                .map { it -> it.first }
+            error = chunks.filter { it -> it.third is Result.Failure }
+                .map { it -> it.second }
         )
     }
 
