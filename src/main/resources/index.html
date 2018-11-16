@@ -67,6 +67,7 @@
         var onChangeHandler = function () {
             calculateAndDisplayRoute(directionsService, directionsDisplay);
 
+            /*
             $.get("http://localhost:8080/", {
                 origin: document.getElementById('start').value,
                 destination: document.getElementById('end').value
@@ -77,6 +78,24 @@
                     var marker = new google.maps.Marker({
                         position: new google.maps.LatLng(data.lat, data.lng),
                         map: map
+                    });
+                }
+
+            })
+            */
+
+
+            $.get("http://localhost:8080/allmarker", {
+                origin: document.getElementById('start').value,
+                destination: document.getElementById('end').value
+            }).done(function (data) {
+                console.log(data)
+
+                for (coordinate in data) {
+                    var marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(data[coordinate].lat, data[coordinate].lng),
+                        map: map,
+                        icon: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
                     });
                 }
 
