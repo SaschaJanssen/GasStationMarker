@@ -20,7 +20,6 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation "com.google.maps.android:android-maps-utils:0.5+:aar"
     implementation "com.google.maps:google-maps-services:0.9.0"
     implementation "org.slf4j:slf4j-simple:1.7.25"
 
