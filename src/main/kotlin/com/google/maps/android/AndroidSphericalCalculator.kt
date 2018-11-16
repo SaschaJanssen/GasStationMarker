@@ -1,8 +1,8 @@
 package com.google.maps.android
 
 import com.google.maps.model.LatLng
-import de.sq.gas.DistanceCalculator
-import de.sq.gas.GasStationMarker
+import de.smartsquare.gas.DistanceCalculator
+import de.smartsquare.gas.GasStationMarker
 
 class AndroidSphericalCalculator : DistanceCalculator {
 

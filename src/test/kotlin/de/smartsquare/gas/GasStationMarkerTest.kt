@@ -1,4 +1,4 @@
-package de.sq.gas
+package de.smartsquare.gas
 
 import com.google.maps.DirectionsApi
 import com.google.maps.GeoApiContext

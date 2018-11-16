@@ -1,4 +1,4 @@
-package de.sq.gas
+package de.smartsquare.gas
 
 import com.google.maps.model.DirectionsResult
 import com.google.maps.model.LatLng
