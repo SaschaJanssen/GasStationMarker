@@ -1,8 +1,8 @@
 package com.google.maps.android
 
 import com.google.maps.model.LatLng
-import de.smartsquare.gas.DistanceCalculator
-import de.smartsquare.gas.GasStationMarker
+import de.smartsquare.gas.route.DistanceCalculator
+import de.smartsquare.gas.route.RouteDivider
 
 class AndroidSphericalCalculator : DistanceCalculator {
 
@@ -21,7 +21,7 @@ class AndroidSphericalCalculator : DistanceCalculator {
      * Returns the distance between two LatLngs, in meters.
      */
     override fun computeDistanceBetween(from: LatLng, to: LatLng): Double {
-        return computeAngleBetween(from, to) * GasStationMarker.EARTH_RADIUS
+        return computeAngleBetween(from, to) * RouteDivider.EARTH_RADIUS
     }
 
     /**
@@ -59,7 +59,7 @@ class AndroidSphericalCalculator : DistanceCalculator {
     override fun computeOffset(from: LatLng, distance: Double, heading: Double): LatLng {
         var distance = distance
         var heading = heading
-        distance /= GasStationMarker.EARTH_RADIUS
+        distance /= RouteDivider.EARTH_RADIUS
         heading = Math.toRadians(heading)
         val fromLat = Math.toRadians(from.lat)
         val fromLng = Math.toRadians(from.lng)

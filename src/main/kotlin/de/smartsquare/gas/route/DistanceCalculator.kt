@@ -1,4 +1,4 @@
-package de.smartsquare.gas
+package de.smartsquare.gas.route
 
 import com.google.maps.model.LatLng
 

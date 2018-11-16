@@ -1,4 +1,4 @@
-package de.smartsquare.gas
+package de.smartsquare.gas.route
 
 import com.google.maps.DirectionsApi
 import com.google.maps.GeoApiContext
@@ -8,9 +8,9 @@ import org.amshove.kluent.shouldContain
 import org.amshove.kluent.shouldEqual
 import org.junit.jupiter.api.Test
 
-class GasStationMarkerTest {
+class RouteDividerTest {
 
-    private val gasStationMarker = GasStationMarker(AndroidSphericalCalculator())
+    private val routeDivider = RouteDivider(AndroidSphericalCalculator())
 
     private val smartsquare = LatLng(52.00522000, 8.56053000)
     private val home = LatLng(52.001250000000006,8.56287)
@@ -24,7 +24,7 @@ class GasStationMarkerTest {
         val destination = "Lipper Hellweg, 84, 33605 Bielefeld, Germany"
         val directions = DirectionsApi.getDirections(context, origin, destination).await()
 
-        val waypointsOnRoute = gasStationMarker.getMarkers(directions, distance = 200.0)
+        val waypointsOnRoute = routeDivider.getMarkers(directions, distance = 200.0)
 
         waypointsOnRoute.size shouldEqual 43
         waypointsOnRoute shouldContain smartsquare

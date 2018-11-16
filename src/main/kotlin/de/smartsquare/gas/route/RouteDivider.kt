@@ -1,9 +1,9 @@
-package de.smartsquare.gas
+package de.smartsquare.gas.route
 
 import com.google.maps.model.DirectionsResult
 import com.google.maps.model.LatLng
 
-class GasStationMarker(private val distanceCalculcator: DistanceCalculator) {
+class RouteDivider(private val distanceCalculcator: DistanceCalculator) {
 
     companion object {
         const val EARTH_RADIUS = 6371009.0
