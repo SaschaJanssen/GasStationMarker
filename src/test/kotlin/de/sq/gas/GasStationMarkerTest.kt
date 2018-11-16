@@ -29,20 +29,4 @@ internal class GasStationMarkerTest {
         waypointsOnRoute shouldContain home
     }
 
-    @Test
-    fun should_calculate_waypoints_between_two_far_away_addresses() {
-        val context = GeoApiContext.Builder()
-                .apiKey("AIzaSyADz7Tc0xusnydQiQzNWsx5kc-pxTpKWBE")
-                .build()
-        val origin = "Otto-Brenner-Str, 247, 33604 Bielefeld, Germany"
-        val destination = "Landsberger Str. 216, 80687 München"
-        val directions = DirectionsApi.getDirections(context, origin, destination).await()
-
-        val waypointsOnRoute = GasStationMarker().getWaypointsOnRoute(directions)
-
-        waypointsOnRoute.size shouldEqual 14147
-        waypointsOnRoute shouldContain smartsquare
-       // waypointsOnRoute shouldContain home
-    }
-
 }
