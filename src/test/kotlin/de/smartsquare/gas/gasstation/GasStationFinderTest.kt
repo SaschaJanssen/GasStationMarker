@@ -12,9 +12,10 @@ class GasStationFinderTest {
 
     @Test
     fun find() {
-        gasStationFinder
-            .findCheapestGasStation(listOf(smartsquare, venne, venne, venne, venne, venne), 20.0)
-            .subscribe { it -> println(it) }
+        val events = gasStationFinder.findCheapestGasStation(markers = listOf(smartsquare, venne, venne, venne, venne, venne), radius = 20.0)
+
+        events.success.subscribe { println(it) }
+        events.error.subscribe { println(it) }
 
         Thread.sleep(50000)
     }

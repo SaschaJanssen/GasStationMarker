@@ -10,7 +10,7 @@ import io.reactivex.Flowable
 
 class GasStationFinder {
 
-    fun findCheapestGasStation(markers: List<LatLng>, radius: Double): Flowable<GasStations.GasStation> {
+    fun findCheapestGasStation(markers: List<LatLng>, radius: Double): Events {
         val requests: List<Flowable<Pair<Response, Result<GasStations, FuelError>>>> = markers
             .map { "https://creativecommons.tankerkoenig.de/json/list.php" to parametersOf(it, radius) }
             .map { it -> it.first.httpGet(it.second) }
@@ -20,15 +20,18 @@ class GasStationFinder {
             .buffer(10)
             .flatMapIterable { it -> it }
 
-        chunks.filter {it -> it.second is Result.Failure }
-            .map { it -> it.first.responseMessage}
-            .subscribe { it -> println(it) }
-
-        return chunks.filter { it -> it.second is Result.Success }
-            .map { it -> it.second.component1()?.stations }
-            .flatMapIterable { it -> it }
-            .sorted(compareBy(GasStations.GasStation::diesel))
-            .takeLast(1)
+        return Events(
+            success = chunks
+                .filter { it -> it.second is Result.Success }
+                .map { it -> it.second.component1() }
+                .filter { it -> it.ok }
+                .map { it -> it.stations }
+                .flatMapIterable { it -> it }
+                .sorted(compareBy(GasStations.GasStation::diesel))
+                .takeLast(1),
+            error = chunks.filter { it -> it.second is Result.Failure }
+                .map { it -> it.first }
+        )
     }
 
     private fun parametersOf(marker: LatLng, radius: Double): List<Pair<String, String>> {
