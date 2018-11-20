@@ -11,9 +11,9 @@ class RouteDivider(private val distanceCalculcator: DistanceCalculator) {
 
     fun getMarkers(directions: DirectionsResult, distance: Double): List<LatLng> {
         val majorMarkers = getMajorMarkers(directions)
-        val intermideateMarkers = getIntermidiateMarkers(majorMarkers, distance)
+        val intermediateMarkers = getIntermediateMarkers(majorMarkers, distance)
 
-        return (intermideateMarkers)
+        return (intermediateMarkers)
     }
 
     private fun getMajorMarkers(directions: DirectionsResult): List<LatLng> = directions.routes
@@ -26,43 +26,48 @@ class RouteDivider(private val distanceCalculcator: DistanceCalculator) {
             .reduce { current, next -> current + next }
             .toList()
 
-    private fun getIntermidiateMarkers(route: List<LatLng>, distance: Double): List<LatLng> = route.zipWithNext()
+    private fun getIntermediateMarkers(route: List<LatLng>, distance: Double): List<LatLng> = route.zipWithNext()
             .filter { it -> distanceCalculcator.computeDistanceBetween(it.first, it.second) > distance }
             .map { it ->
                 val heading = distanceCalculcator.computeHeading(it.first, it.second)
                 val currentDistance = distanceCalculcator.computeDistanceBetween(it.first, it.second)
                 val markersNeeded = (distance / currentDistance).toInt()
-                println(markersNeeded)
                 val ranges = 1..markersNeeded
                 ranges.map { i -> distanceCalculcator.computeOffset(it.first, i * distance, heading) }
             }
             .flatten()
 
-    fun getMarkerEachNKm(directions: DirectionsResult, distance: Double): List<LatLng> {
+    fun calcMarkers(directions: DirectionsResult, distance: Double): List<LatLng> {
         val route = getMajorMarkers(directions)
 
         val resultMarkers = ArrayList<LatLng>()
 
-        var previousPoint = route[0]
+        var firstPoint = route[0]
         var distanceBetween = 0.0
-        for (point in route) {
-            distanceBetween = distanceBetween.plus(distanceCalculcator.computeDistanceBetween(previousPoint, point))
+        for ((index, value) in route.withIndex()) {
 
-
-            if (distanceBetween < distance) {
-                previousPoint = point
-                continue
+            if (index + 1 >= route.size) {
+                break
             }
 
-            val heading = distanceCalculcator.computeHeading(previousPoint, point)
-            val newKmMarker = distanceCalculcator.computeOffset(previousPoint, distance, heading)
+            var secondPoint = route[index + 1]
 
-            resultMarkers.add(newKmMarker)
-            previousPoint = point
+            var distanceBetween = distanceBetween.plus(distanceCalculcator.computeDistanceBetween(firstPoint, secondPoint))
+            if (distanceBetween < distance) {
+                continue;
+            }
+
+            val heading = distanceCalculcator.computeHeading(firstPoint, secondPoint)
+
+            val newKmMarker = distanceCalculcator.computeOffset(firstPoint, distance, heading)
+
+            firstPoint = secondPoint
             distanceBetween = 0.0
+            resultMarkers.add(newKmMarker)
         }
 
         return resultMarkers
+
     }
 
 }

@@ -29,7 +29,8 @@ fun main(args: Array<String>) {
     val gasStationFinder = GasStationFinder()
 
     val context = GeoApiContext.Builder()
-            .apiKey("AIzaSyADz7Tc0xusnydQiQzNWsx5kc-pxTpKWBE")
+            .apiKey("AIzaSyCDpAgAXSNYVlpSymjNki53J9Ou2LB5u0g" +
+                    "")
             .build()
 
     val server = embeddedServer(Netty, port = 8080) {
@@ -64,13 +65,8 @@ fun main(args: Array<String>) {
                 val directions = DirectionsApi.getDirections(context, origin, destination).await()
 
                 val markers = gasStationMarker.getMarkers(directions, 200.0)
-                // val cheapestGasStation = gasStationFinder.findAllStationsInRadius(markers)
-                //      call.respond(cheapestGasStation.blockingGet())
-
-                //val twentyKmRadiusCoordinates = gasStationMarker.getMarkerEachNKm(directions, 20000.0)
-
-                //val cheapestGasStation = gasStationFinder.findCheapestGasStation(markers)
-                //call.respond(cheapestGasStation.blockingGet())
+                val cheapestGasStation = gasStationFinder.findCheapestGasStation(markers, 200.00)
+                call.respond(cheapestGasStation.success.blockingFirst())
             }
 
             get("/allmarker") {
@@ -79,8 +75,7 @@ fun main(args: Array<String>) {
 
                 val directions = DirectionsApi.getDirections(context, origin, destination).await()
 
-                //val twentyKmRadiusCoordinates = gasStationMarker.getMarkerEachNKm(directions, 200.0)
-                val markers = gasStationMarker.getMarkers(directions, 200.0)
+                val markers = gasStationMarker.calcMarkers(directions, 200.0)
 
                 call.respond(markers)
             }
