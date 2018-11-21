@@ -37,37 +37,27 @@ class RouteDivider(private val distanceCalculcator: DistanceCalculator) {
             }
             .flatten()
 
-    fun calcMarkers(directions: DirectionsResult, distance: Double): List<LatLng> {
+    fun calcMarkers(directions: DirectionsResult, minimumDistance: Double): List<LatLng> {
         val route = getMajorMarkers(directions)
 
-        val resultMarkers = ArrayList<LatLng>()
+        return when {
+            route.isEmpty() -> emptyList()
+            else -> route.drop(1)
+                    .fold(listOf(route.first())) { current, next ->
+                        val distance = distanceCalculcator.computeDistanceBetween(current.last(), next)
 
-        var firstPoint = route[0]
-        var distanceBetween = 0.0
-        for ((index, value) in route.withIndex()) {
+                        when (distance >= minimumDistance) {
+                            true -> current + next
+                            false -> current
+                        }
+                    }
+                    .zipWithNext()
+                    .map { (firstPoint, secondPoint) ->
+                        val heading = distanceCalculcator.computeHeading(firstPoint, secondPoint)
 
-            if (index + 1 >= route.size) {
-                break
-            }
-
-            var secondPoint = route[index + 1]
-
-            var distanceBetween = distanceBetween.plus(distanceCalculcator.computeDistanceBetween(firstPoint, secondPoint))
-            if (distanceBetween < distance) {
-                continue;
-            }
-
-            val heading = distanceCalculcator.computeHeading(firstPoint, secondPoint)
-
-            val newKmMarker = distanceCalculcator.computeOffset(firstPoint, distance, heading)
-
-            firstPoint = secondPoint
-            distanceBetween = 0.0
-            resultMarkers.add(newKmMarker)
+                        distanceCalculcator.computeOffset(firstPoint, minimumDistance, heading)
+                    }
         }
-
-        return resultMarkers
-
     }
 
 }
